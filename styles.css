@@ -1,0 +1,879 @@
+:root {
+  --beat: 0.6s;
+  --loop: calc(var(--beat) * 4);
+  --scale: 0.8;
+  --bone: #ece8e8;
+  --ink: #2a1208;
+  --cream: #fff4e4;
+  --pumpkin: #ff8a3d;
+  --night: #120814;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  background: var(--night);
+  color: var(--cream);
+  font-family: Outfit, "Segoe UI", sans-serif;
+}
+
+button, .stage { font: inherit; }
+
+.sky {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, #3a1858 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 80% 0%, #241238 0%, transparent 60%),
+    linear-gradient(#1a0a24 0%, #120814 55%, #1c0c12 100%);
+}
+
+.moon {
+  position: absolute;
+  top: 7vh;
+  right: 9vw;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 32%, #fffaf0 0 18%, transparent 19%),
+    radial-gradient(circle at 62% 58%, #e4d3b0 0 10%, transparent 11%),
+    radial-gradient(circle at 40% 70%, #efe2c6 0 7%, transparent 8%),
+    #f6e7c1;
+  box-shadow: 0 0 40px 12px rgba(255, 236, 196, 0.28);
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 28% 14%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 44% 28%, #fff8 50%, transparent 51%),
+    radial-gradient(1px 1px at 63% 18%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 78% 32%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 18% 48%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 12%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 52% 8%, #fff 50%, transparent 51%);
+  animation: twinkle 3.6s ease-in-out infinite;
+}
+
+.spotlight {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 42% 48% at 50% 46%, rgba(255, 176, 92, 0.16), transparent 68%);
+}
+
+header {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 16px 16px 0;
+}
+
+h1 {
+  margin: 0;
+  font-family: Creepster, fantasy;
+  font-size: clamp(2.5rem, 6vw, 4.4rem);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 0.9;
+  color: #ffe7c4;
+  text-shadow: 0 3px 0 #7a2a10, 0 0 22px rgba(255, 122, 40, 0.35);
+}
+
+#now {
+  margin: 6px 0 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #efd3b8;
+}
+
+.frame {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scaler {
+  width: calc(178px * var(--scale));
+  height: calc(720px * var(--scale));
+  position: relative;
+}
+
+.stage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--pumpkin);
+  outline-offset: 6px;
+  border-radius: 12px;
+}
+
+.skeleton {
+  position: absolute;
+  left: 0;
+  top: calc(148px * var(--scale));
+  width: 178px;
+  height: 271px;
+  transform: scale(var(--scale));
+  transform-origin: top left;
+}
+
+.floor-glow,
+.floor-shadow {
+  position: absolute;
+  left: 89px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.floor-glow {
+  top: 454px;
+  width: 240px;
+  height: 64px;
+  background: radial-gradient(ellipse, rgba(255, 140, 60, 0.28), transparent 70%);
+}
+
+.floor-shadow {
+  top: 468px;
+  width: 150px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  filter: blur(3px);
+}
+
+.bouncer {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 16px 8px rgba(0, 0, 0, 0.38));
+}
+
+.torso-pivot,
+.hip-pivot,
+.joint {
+  position: absolute;
+  transform-origin: center center;
+}
+
+.torso-pivot {
+  inset: 0;
+  transform-origin: 89px 214px;
+}
+
+.torso {
+  position: absolute;
+  inset: 0;
+  width: 178px;
+  height: 271px;
+  z-index: 1;
+}
+
+.hip-pivot {
+  left: 89px;
+  top: 214px;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+
+.hip-img {
+  position: absolute;
+  left: -90.5px;
+  top: -34px;
+  width: 181px;
+  height: 100px;
+  z-index: 2;
+}
+
+img.bone,
+.head-look img,
+.neck {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.joint > img.bone {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Shoulders sit on the clavicle tips. Pivot is the humeral head. */
+.shoulder-left {
+  left: -33px;
+  top: 0;
+  width: 69px;
+  height: 125px;
+  transform-origin: 51px 16px;
+  z-index: 3;
+}
+
+.shoulder-right {
+  left: 142px;
+  top: 0;
+  width: 69px;
+  height: 125px;
+  transform-origin: 18px 16px;
+  z-index: 3;
+}
+
+.elbow-left {
+  left: -36px;
+  top: 78px;
+  width: 100px;
+  height: 139px;
+  transform-origin: 54px 20px;
+}
+
+.elbow-right {
+  left: 5px;
+  top: 78px;
+  width: 100px;
+  height: 139px;
+  transform-origin: 46px 20px;
+}
+
+.wrist-left {
+  left: 20px;
+  top: 86px;
+  width: 58px;
+  height: 92px;
+  transform-origin: 26px 21px;
+}
+
+.wrist-right {
+  left: 22px;
+  top: 86px;
+  width: 58px;
+  height: 92px;
+  transform-origin: 32px 21px;
+}
+
+/* Thighs sprout from each side of the pelvis. */
+.leg-left {
+  left: -58.5px;
+  top: 18px;
+  width: 69px;
+  height: 125px;
+  transform-origin: 18px 16px;
+  z-index: 1;
+}
+
+.leg-right {
+  left: -10.5px;
+  top: 18px;
+  width: 69px;
+  height: 125px;
+  transform-origin: 51px 16px;
+  z-index: 1;
+}
+
+.knee-left {
+  left: 33px;
+  top: 86px;
+  width: 37px;
+  height: 123px;
+  transform-origin: 18px 12px;
+}
+
+.knee-right {
+  left: 0;
+  top: 86px;
+  width: 37px;
+  height: 123px;
+  transform-origin: 18px 12px;
+}
+
+.ankle-left {
+  left: -27px;
+  top: 78px;
+  width: 70px;
+  height: 44px;
+  transform-origin: 45px 20px;
+  z-index: 2;
+}
+
+.ankle-right {
+  left: -6px;
+  top: 78px;
+  width: 70px;
+  height: 44px;
+  transform-origin: 24px 20px;
+  z-index: 2;
+}
+
+.neck-pivot {
+  left: 89px;
+  top: 8px;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  z-index: 2;
+}
+
+.neck {
+  position: absolute;
+  left: -5px;
+  top: -46px;
+  width: 9px;
+  height: 56px;
+  filter: brightness(1.14);
+}
+
+.head-pivot {
+  left: 89px;
+  top: -30px;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  z-index: 4;
+}
+
+.head-look {
+  position: absolute;
+  left: -50px;
+  top: -98px;
+  width: 100px;
+  height: 110px;
+  transform-origin: 50px 98px;
+}
+
+.head-look img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.eye {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff3b0 0%, #ffb000 42%, #ff5a1f 68%, transparent 72%);
+  filter: blur(0.4px);
+  z-index: 0;
+  animation: eye-pulse var(--loop) ease-in-out infinite;
+}
+
+.eye-left { left: 15px; top: 37px; }
+.eye-right { left: 58px; top: 37px; }
+
+.controls {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 16px 18px;
+}
+
+.dances, .toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.controls button {
+  border: 1px solid rgba(255, 220, 180, 0.32);
+  background: rgba(255, 244, 230, 0.06);
+  color: var(--cream);
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.controls button:hover { background: rgba(255, 244, 230, 0.14); }
+
+.controls button:focus-visible {
+  outline: 2px solid var(--pumpkin);
+  outline-offset: 2px;
+}
+
+.controls button[aria-pressed="true"] {
+  background: var(--pumpkin);
+  border-color: var(--pumpkin);
+  color: var(--ink);
+}
+
+.animated {
+  animation-duration: var(--loop);
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+
+body[data-dance="shuffle"] { --loop: calc(var(--beat) * 2); }
+body[data-dance="wave"] { --loop: calc(var(--beat) * 8); }
+
+body[data-dance="robot"] .animated { animation-timing-function: steps(4, end); }
+body[data-dance="shuffle"] .animated { animation-timing-function: linear; }
+
+body.is-paused .animated { animation-play-state: paused; }
+body.is-reset .animated { animation: none !important; }
+
+/* Groove */
+.bouncer { animation-name: bounce-groove; }
+.torso-pivot { animation-name: torso-groove; }
+.hip-pivot { animation-name: hip-groove; }
+.shoulder-left { animation-name: arm-left-groove; }
+.shoulder-right { animation-name: arm-right-groove; }
+.elbow-left { animation-name: elbow-left-groove; }
+.elbow-right { animation-name: elbow-right-groove; }
+.wrist-left { animation-name: wrist-left-groove; }
+.wrist-right { animation-name: wrist-right-groove; }
+.leg-left { animation-name: leg-left-groove; }
+.leg-right { animation-name: leg-right-groove; }
+.knee-left { animation-name: knee-left-groove; }
+.knee-right { animation-name: knee-right-groove; }
+.ankle-left { animation-name: ankle-left-groove; }
+.ankle-right { animation-name: ankle-right-groove; }
+.head-pivot, .neck-pivot { animation-name: head-groove; }
+.floor-shadow { animation-name: shadow-groove; }
+
+body[data-dance="shuffle"] .bouncer { animation-name: bounce-shuffle; }
+body[data-dance="shuffle"] .torso-pivot { animation-name: torso-shuffle; }
+body[data-dance="shuffle"] .hip-pivot { animation-name: hip-shuffle; }
+body[data-dance="shuffle"] .shoulder-left { animation-name: arm-left-shuffle; }
+body[data-dance="shuffle"] .shoulder-right { animation-name: arm-right-shuffle; }
+body[data-dance="shuffle"] .elbow-left { animation-name: elbow-left-shuffle; }
+body[data-dance="shuffle"] .elbow-right { animation-name: elbow-right-shuffle; }
+body[data-dance="shuffle"] .leg-left { animation-name: leg-left-shuffle; }
+body[data-dance="shuffle"] .leg-right { animation-name: leg-right-shuffle; }
+body[data-dance="shuffle"] .knee-left { animation-name: knee-left-shuffle; }
+body[data-dance="shuffle"] .knee-right { animation-name: knee-right-shuffle; }
+body[data-dance="shuffle"] .head-pivot,
+body[data-dance="shuffle"] .neck-pivot { animation-name: head-shuffle; }
+body[data-dance="shuffle"] .floor-shadow { animation-name: shadow-shuffle; }
+
+body[data-dance="robot"] .bouncer { animation-name: bounce-robot; }
+body[data-dance="robot"] .torso-pivot { animation-name: torso-robot; }
+body[data-dance="robot"] .hip-pivot { animation-name: hip-robot; }
+body[data-dance="robot"] .shoulder-left { animation-name: arm-left-robot; }
+body[data-dance="robot"] .shoulder-right { animation-name: arm-right-robot; }
+body[data-dance="robot"] .elbow-left { animation-name: elbow-left-robot; }
+body[data-dance="robot"] .elbow-right { animation-name: elbow-right-robot; }
+body[data-dance="robot"] .wrist-left,
+body[data-dance="robot"] .wrist-right { animation-name: none; }
+body[data-dance="robot"] .leg-left { animation-name: leg-left-robot; }
+body[data-dance="robot"] .leg-right { animation-name: leg-right-robot; }
+body[data-dance="robot"] .knee-left { animation-name: knee-left-robot; }
+body[data-dance="robot"] .knee-right { animation-name: knee-right-robot; }
+body[data-dance="robot"] .ankle-left,
+body[data-dance="robot"] .ankle-right { animation-name: none; }
+body[data-dance="robot"] .head-pivot,
+body[data-dance="robot"] .neck-pivot { animation-name: head-robot; }
+body[data-dance="robot"] .floor-shadow { animation-name: shadow-robot; }
+
+body[data-dance="wave"] .bouncer { animation-name: bounce-wave; }
+body[data-dance="wave"] .torso-pivot { animation-name: torso-wave; }
+body[data-dance="wave"] .hip-pivot { animation-name: hip-wave; }
+body[data-dance="wave"] .shoulder-left { animation-name: arm-left-wave; }
+body[data-dance="wave"] .shoulder-right { animation-name: arm-right-wave; }
+body[data-dance="wave"] .elbow-left { animation-name: elbow-left-wave; }
+body[data-dance="wave"] .elbow-right { animation-name: elbow-right-wave; }
+body[data-dance="wave"] .wrist-right { animation-name: wrist-right-wave; }
+body[data-dance="wave"] .leg-left { animation-name: leg-left-wave; }
+body[data-dance="wave"] .leg-right { animation-name: leg-right-wave; }
+body[data-dance="wave"] .knee-left { animation-name: knee-left-wave; }
+body[data-dance="wave"] .knee-right { animation-name: knee-right-wave; }
+body[data-dance="wave"] .head-pivot,
+body[data-dance="wave"] .neck-pivot { animation-name: head-wave; }
+body[data-dance="wave"] .floor-shadow { animation-name: shadow-wave; }
+
+@keyframes bounce-groove {
+  0%, 100% { transform: translateY(0); }
+  18% { transform: translateY(-26px); }
+  40% { transform: translateY(-4px); }
+  62% { transform: translateY(-30px); }
+  82% { transform: translateY(-2px); }
+}
+
+@keyframes torso-groove {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  50% { transform: rotate(1deg); }
+  75% { transform: rotate(6deg); }
+}
+
+@keyframes hip-groove {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(9deg); }
+  50% { transform: rotate(-1deg); }
+  75% { transform: rotate(-10deg); }
+}
+
+@keyframes arm-left-groove {
+  0%, 100% { transform: rotate(-6deg); }
+  25% { transform: rotate(28deg); }
+  50% { transform: rotate(-18deg); }
+  75% { transform: rotate(-62deg); }
+}
+
+@keyframes arm-right-groove {
+  0%, 100% { transform: rotate(16deg); }
+  25% { transform: rotate(-58deg); }
+  50% { transform: rotate(-8deg); }
+  75% { transform: rotate(24deg); }
+}
+
+@keyframes elbow-left-groove {
+  0%, 100% { transform: rotate(22deg); }
+  30% { transform: rotate(68deg); }
+  55% { transform: rotate(18deg); }
+  80% { transform: rotate(36deg); }
+}
+
+@keyframes elbow-right-groove {
+  0%, 100% { transform: rotate(-28deg); }
+  30% { transform: rotate(-16deg); }
+  55% { transform: rotate(-64deg); }
+  80% { transform: rotate(-24deg); }
+}
+
+@keyframes wrist-left-groove {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(16deg); }
+}
+
+@keyframes wrist-right-groove {
+  0%, 100% { transform: rotate(10deg); }
+  50% { transform: rotate(-14deg); }
+}
+
+@keyframes leg-left-groove {
+  0%, 100% { transform: rotate(24deg); }
+  25% { transform: rotate(52deg); }
+  50% { transform: rotate(16deg); }
+  75% { transform: rotate(6deg); }
+}
+
+@keyframes leg-right-groove {
+  0%, 100% { transform: rotate(-24deg); }
+  25% { transform: rotate(-6deg); }
+  50% { transform: rotate(-16deg); }
+  75% { transform: rotate(-52deg); }
+}
+
+@keyframes knee-left-groove {
+  0%, 100% { transform: rotate(10deg); }
+  25% { transform: rotate(18deg); }
+  50% { transform: rotate(8deg); }
+  75% { transform: rotate(52deg); }
+}
+
+@keyframes knee-right-groove {
+  0%, 100% { transform: rotate(-12deg); }
+  25% { transform: rotate(-50deg); }
+  50% { transform: rotate(-8deg); }
+  75% { transform: rotate(-16deg); }
+}
+
+@keyframes ankle-left-groove {
+  0%, 100% { transform: rotate(-6deg); }
+  75% { transform: rotate(-28deg); }
+}
+
+@keyframes ankle-right-groove {
+  0%, 100% { transform: rotate(6deg); }
+  25% { transform: rotate(26deg); }
+}
+
+@keyframes head-groove {
+  0%, 100% { transform: rotate(4deg); }
+  25% { transform: rotate(-12deg); }
+  50% { transform: rotate(2deg); }
+  75% { transform: rotate(12deg); }
+}
+
+@keyframes shadow-groove {
+  0%, 40%, 82%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.5; }
+  18%, 62% { transform: translateX(-50%) scaleX(0.72); opacity: 0.28; }
+}
+
+@keyframes bounce-shuffle {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-12px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-16px); }
+}
+
+@keyframes torso-shuffle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes hip-shuffle {
+  0%, 100% { transform: rotate(7deg); }
+  50% { transform: rotate(-7deg); }
+}
+
+@keyframes arm-left-shuffle {
+  0%, 100% { transform: rotate(18deg); }
+  50% { transform: rotate(-28deg); }
+}
+
+@keyframes arm-right-shuffle {
+  0%, 100% { transform: rotate(-24deg); }
+  50% { transform: rotate(16deg); }
+}
+
+@keyframes elbow-left-shuffle {
+  0%, 100% { transform: rotate(58deg); }
+  50% { transform: rotate(24deg); }
+}
+
+@keyframes elbow-right-shuffle {
+  0%, 100% { transform: rotate(-22deg); }
+  50% { transform: rotate(-60deg); }
+}
+
+@keyframes leg-left-shuffle {
+  0%, 100% { transform: rotate(14deg); }
+  35% { transform: rotate(28deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes leg-right-shuffle {
+  0%, 100% { transform: rotate(-14deg); }
+  35% { transform: rotate(-6deg); }
+  50% { transform: rotate(-28deg); }
+}
+
+@keyframes knee-left-shuffle {
+  0% { transform: rotate(8deg); }
+  30% { transform: rotate(62deg); }
+  55%, 100% { transform: rotate(6deg); }
+}
+
+@keyframes knee-right-shuffle {
+  0%, 45% { transform: rotate(-6deg); }
+  70% { transform: rotate(-64deg); }
+  100% { transform: rotate(-8deg); }
+}
+
+@keyframes head-shuffle {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes shadow-shuffle {
+  0%, 50%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.48; }
+  25%, 75% { transform: translateX(-50%) scaleX(0.8); opacity: 0.32; }
+}
+
+@keyframes bounce-robot {
+  0%, 45% { transform: translateY(0); }
+  50%, 95% { transform: translateY(-18px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes torso-robot {
+  0%, 20% { transform: rotate(-8deg); }
+  25%, 45% { transform: rotate(8deg); }
+  50%, 70% { transform: rotate(-8deg); }
+  75%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes hip-robot {
+  0%, 20% { transform: rotate(10deg); }
+  25%, 45% { transform: rotate(-10deg); }
+  50%, 70% { transform: rotate(10deg); }
+  75%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes arm-left-robot {
+  0%, 20% { transform: rotate(-86deg); }
+  25%, 45% { transform: rotate(8deg); }
+  50%, 70% { transform: rotate(-58deg); }
+  75%, 100% { transform: rotate(-8deg); }
+}
+
+@keyframes arm-right-robot {
+  0%, 20% { transform: rotate(-8deg); }
+  25%, 45% { transform: rotate(-86deg); }
+  50%, 70% { transform: rotate(-58deg); }
+  75%, 100% { transform: rotate(10deg); }
+}
+
+@keyframes elbow-left-robot {
+  0%, 20% { transform: rotate(18deg); }
+  25%, 45% { transform: rotate(74deg); }
+  50%, 70% { transform: rotate(12deg); }
+  75%, 100% { transform: rotate(70deg); }
+}
+
+@keyframes elbow-right-robot {
+  0%, 20% { transform: rotate(-74deg); }
+  25%, 45% { transform: rotate(-16deg); }
+  50%, 70% { transform: rotate(-12deg); }
+  75%, 100% { transform: rotate(-68deg); }
+}
+
+@keyframes leg-left-robot {
+  0%, 20% { transform: rotate(36deg); }
+  25%, 45% { transform: rotate(16deg); }
+  50%, 70% { transform: rotate(10deg); }
+  75%, 100% { transform: rotate(22deg); }
+}
+
+@keyframes leg-right-robot {
+  0%, 20% { transform: rotate(-16deg); }
+  25%, 45% { transform: rotate(-36deg); }
+  50%, 70% { transform: rotate(-10deg); }
+  75%, 100% { transform: rotate(-22deg); }
+}
+
+@keyframes knee-left-robot {
+  0%, 20% { transform: rotate(48deg); }
+  25%, 70% { transform: rotate(4deg); }
+  75%, 100% { transform: rotate(8deg); }
+}
+
+@keyframes knee-right-robot {
+  0%, 20% { transform: rotate(-4deg); }
+  25%, 45% { transform: rotate(-48deg); }
+  50%, 100% { transform: rotate(-8deg); }
+}
+
+@keyframes head-robot {
+  0%, 20% { transform: rotate(-16deg); }
+  25%, 45% { transform: rotate(16deg); }
+  50%, 70% { transform: rotate(0deg); }
+  75%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes shadow-robot {
+  0%, 45%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.5; }
+  50%, 95% { transform: translateX(-50%) scaleX(0.78); opacity: 0.3; }
+}
+
+@keyframes bounce-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes torso-wave {
+  0%, 100% { transform: rotate(4deg); }
+  50% { transform: rotate(-3deg); }
+}
+
+@keyframes hip-wave {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes arm-left-wave {
+  0%, 100% { transform: rotate(-48deg); }
+}
+
+@keyframes elbow-left-wave {
+  0%, 100% { transform: rotate(78deg); }
+}
+
+@keyframes arm-right-wave {
+  0%, 100% { transform: rotate(-148deg); }
+  20% { transform: rotate(-172deg); }
+  40% { transform: rotate(-136deg); }
+  60% { transform: rotate(-174deg); }
+  80% { transform: rotate(-140deg); }
+}
+
+@keyframes elbow-right-wave {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(-18deg); }
+}
+
+@keyframes wrist-right-wave {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(-20deg); }
+}
+
+@keyframes leg-left-wave {
+  0%, 100% { transform: rotate(30deg); }
+  50% { transform: rotate(14deg); }
+}
+
+@keyframes leg-right-wave {
+  0%, 100% { transform: rotate(-14deg); }
+  50% { transform: rotate(-32deg); }
+}
+
+@keyframes knee-left-wave {
+  0%, 100% { transform: rotate(16deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes knee-right-wave {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(-18deg); }
+}
+
+@keyframes head-wave {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(-6deg); }
+}
+
+@keyframes shadow-wave {
+  0%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.46; }
+  50% { transform: translateX(-50%) scaleX(0.9); opacity: 0.36; }
+}
+
+@keyframes eye-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated, .eye, .stars { animation: none !important; }
+  .bouncer, .torso-pivot, .hip-pivot,
+  .shoulder-right, .wrist-left, .wrist-right,
+  .head-pivot, .neck-pivot { transform: none; }
+  .shoulder-left { transform: rotate(-8deg); }
+  .elbow-left { transform: rotate(24deg); }
+  .elbow-right { transform: rotate(-24deg); }
+  .leg-left { transform: rotate(24deg); }
+  .leg-right { transform: rotate(-24deg); }
+  .knee-left { transform: rotate(8deg); }
+  .knee-right { transform: rotate(-8deg); }
+  .floor-shadow { transform: translateX(-50%); opacity: 0.45; }
+}

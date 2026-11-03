@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dancing Skeleton</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💀</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    (function () {
+      var scale = Math.min((innerHeight - 148) / 720, (innerWidth - 16) / 560, 1.15);
+      document.documentElement.style.setProperty("--scale", Math.max(0.34, scale).toFixed(3));
+    })();
+  </script>
+</head>
+<body data-dance="groove">
+  <div class="sky" aria-hidden="true">
+    <div class="moon"></div>
+    <div class="stars"></div>
+    <div class="spotlight"></div>
+  </div>
+
+  <header>
+    <h1>Dancing Skeleton</h1>
+    <p id="now">Now playing · Boogie</p>
+  </header>
+
+  <div class="frame">
+    <div class="scaler">
+      <button class="stage" id="stage" type="button" aria-label="Dancing skeleton. Activate to change the dance.">
+        <div class="skeleton">
+          <div class="floor-glow" aria-hidden="true"></div>
+          <div class="floor-shadow animated" aria-hidden="true"></div>
+          <div class="bouncer animated">
+            <!-- Straight shins hang from the angled thighs. UpperLeftLeg is the outward-right bone, so it is the right arm and the left thigh. UpperLeftArm is the outward-left bone. -->
+            <div class="hip-pivot animated">
+              <div class="leg leg-left joint animated">
+                <img class="bone" src="skeleton_svgs/UpperLeftLeg.svg" width="69" height="125" alt="">
+                <div class="knee knee-left joint animated">
+                  <img class="bone" src="skeleton_svgs/LowerLeftLeg.svg" width="37" height="123" alt="">
+                  <div class="ankle ankle-left joint animated">
+                    <img class="bone" src="skeleton_svgs/LeftFoot.svg" width="70" height="44" alt="">
+                  </div>
+                </div>
+              </div>
+              <div class="leg leg-right joint animated">
+                <img class="bone" src="skeleton_svgs/UpperLeftArm.svg" width="69" height="125" alt="">
+                <div class="knee knee-right joint animated">
+                  <img class="bone" src="skeleton_svgs/LowerRightLeg.svg" width="37" height="123" alt="">
+                  <div class="ankle ankle-right joint animated">
+                    <img class="bone" src="skeleton_svgs/RIghtFoot.svg" width="70" height="44" alt="">
+                  </div>
+                </div>
+              </div>
+              <img class="hip-img" src="skeleton_svgs/Hip.svg" width="181" height="100" alt="">
+            </div>
+
+            <div class="torso-pivot animated">
+              <img class="torso" src="skeleton_svgs/Body.svg" width="178" height="271" alt="">
+              <div class="neck-pivot joint animated">
+                <img class="neck" src="skeleton_svgs/Neck.svg" width="9" height="56" alt="">
+              </div>
+              <div class="head-pivot joint animated">
+                <div class="head-look" id="headLook">
+                  <span class="eye eye-left" aria-hidden="true"></span>
+                  <span class="eye eye-right" aria-hidden="true"></span>
+                  <img src="skeleton_svgs/Head.svg" width="100" height="110" alt="">
+                </div>
+              </div>
+
+              <div class="shoulder shoulder-left joint animated">
+                <img class="bone" src="skeleton_svgs/UpperLeftArm.svg" width="69" height="125" alt="">
+                <div class="elbow elbow-left joint animated">
+                  <img class="bone" src="skeleton_svgs/LowerLeftArm.svg" width="100" height="139" alt="">
+                  <div class="wrist wrist-left joint animated">
+                    <img class="bone" src="skeleton_svgs/LeftHand.svg" width="58" height="92" alt="">
+                  </div>
+                </div>
+              </div>
+
+              <div class="shoulder shoulder-right joint animated">
+                <img class="bone" src="skeleton_svgs/UpperLeftLeg.svg" width="69" height="125" alt="">
+                <div class="elbow elbow-right joint animated">
+                  <img class="bone" src="skeleton_svgs/LowerRightArm.svg" width="100" height="139" alt="">
+                  <div class="wrist wrist-right joint animated">
+                    <img class="bone" src="skeleton_svgs/RightHand.svg" width="58" height="92" alt="">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="dances" role="group" aria-label="Dances">
+      <button type="button" data-dance="groove" aria-pressed="true">Boogie</button>
+      <button type="button" data-dance="shuffle" aria-pressed="false">Shuffle</button>
+      <button type="button" data-dance="robot" aria-pressed="false">Robot</button>
+      <button type="button" data-dance="wave" aria-pressed="false">Wave</button>
+    </div>
+    <div class="toggles">
+      <button type="button" id="sound" aria-pressed="false">Sound off</button>
+      <button type="button" id="pause" aria-pressed="false">Pause</button>
+    </div>
+  </div>
+
+  <script src="dance.js"></script>
+</body>
+</html>
